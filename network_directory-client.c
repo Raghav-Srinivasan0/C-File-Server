@@ -19,7 +19,7 @@ int main(int argc, char **argv)
         strcat(fullfilename, filename);
         remove(fullfilename);
         printf("Opening %s ...\n", fullfilename);
-        FILE *f = fopen(fullfilename, "a");
+        FILE *f = fopen(fullfilename, "ab");
         fputs(res, f);
         fclose(f);
         free(fullfilename);
