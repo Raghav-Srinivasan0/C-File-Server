@@ -55,6 +55,7 @@ file *file_new(char *filename)
         return NULL;
     }
     temp_file->data = malloc(findSize(filename));
+    temp_file->data_size = findSize(filename);
     printf("data: %ld\n", fread(temp_file->data, 1, findSize(filename), f));
     fclose(f);
     return temp_file;
@@ -157,7 +158,7 @@ void directory_free(directory *D)
     free(D);
 }
 
-void start_server(char *url, char *dirpath, int public_key, int mod)
+void start_server(char *url, char *dirpath)
 {
 
     nng_socket sock;
