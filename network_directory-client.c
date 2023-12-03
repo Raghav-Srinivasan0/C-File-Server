@@ -9,7 +9,7 @@ int main(int argc, char **argv)
         scanf("%30s", filename);
         if (strcmp("exit_client", filename) == 0)
             break;
-        data *res = client_request(argv[1], filename);
+        data *res = client_request(argv[1], filename, atoi(argv[2]), atoi(argv[3]));
         if (strcmp("EXIT", filename) == 0)
             break;
         printf("Before memcmp\n");
