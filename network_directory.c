@@ -217,9 +217,12 @@ void start_server(char *url, char *dirpath)
             }
             else
             {
+                printf("Here1\n");
                 file *res = directory_search(dir, filename, ext);
+                printf("Here2.1\n");
                 free(filename);
                 free(ext);
+                printf("Here2\n");
                 if (res == NULL)
                 {
                     printf("Unable to find file!\n");
@@ -230,7 +233,7 @@ void start_server(char *url, char *dirpath)
                 }
                 else
                 {
-                    printf("Data: %s\n", (unsigned char *)(res->data));
+                    printf("Here3\n");
                     if ((rv = nng_send(sock, res->data, res->data_size, 0)) != 0)
                     {
                         fatal("nng_send", rv);
