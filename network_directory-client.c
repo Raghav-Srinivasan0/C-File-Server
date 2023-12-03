@@ -1,6 +1,6 @@
 #include "network_directory.h"
 
-int main(char **argv)
+int main(int argc, char **argv)
 {
     char *resultDir = "result_dir/";
     while (true)
