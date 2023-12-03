@@ -280,5 +280,6 @@ data *client_request(char *url, char *filename)
     memcpy(buf_alloc->data, buf, sz);
     nng_free(buf, sz);
     nng_close(sock);
+    printf("Returned from client_request\n");
     return buf_alloc;
 }
