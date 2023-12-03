@@ -5,4 +5,4 @@ all: network_directory.h network_directory-client.c network_directory-server.c n
 run-client: client 
 	sudo ./client tcp://172.24.148.15:80
 run-server: server
-	sudo ./server tcp://172.24.148.15:80
+	sudo ./server tcp://172.24.148.15:80 test-dir
