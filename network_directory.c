@@ -277,6 +277,7 @@ data *client_request(char *url, char *filename)
     printf("NODE1: RECEIVED DATA %s\n", buf);
     data *buf_alloc = malloc(sizeof(data));
     buf_alloc->size = sz;
+    printf("sz: %ld\n", sz);
     buf_alloc->data = malloc(sz);
     printf("before memcpy\n");
     memcpy(buf_alloc->data, buf, sz); // BROKEN
