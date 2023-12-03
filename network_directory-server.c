@@ -1,7 +1,7 @@
 #include "network_directory.h"
 
-int main()
+int main(char **argv)
 {
-    start_server("tcp://localhost:80","test_dir");
+    start_server(argv[1], argv[2]);
     return 0;
-} 
+}
