@@ -18,9 +18,7 @@ long int findSize(char file_name[])
         return -1;
     }
 
-    printf("pre seek\n");
     fseek(fp, 0L, SEEK_END);
-    printf("post seek\n");
 
     // calculating the size of the file
     long int res = ftell(fp);
@@ -56,7 +54,6 @@ file *file_new(char *filename)
     }
     temp_file->data = malloc(findSize(filename));
     temp_file->data_size = findSize(filename);
-    printf("data: %ld\n", fread(temp_file->data, 1, findSize(filename), f));
     fclose(f);
     return temp_file;
 }
@@ -174,6 +171,7 @@ void start_server(char *url, char *dirpath)
     {
         fatal("nng_listen", rv);
     }
+    printf("Server Activated!\n\n");
     for (;;)
     {
         char *buf = NULL;
