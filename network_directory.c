@@ -234,10 +234,8 @@ void start_server(char *url, char *dirpath, int public_key, int mod)
                     for (int i = 0; i < res->data_size; i++)
                     {
                         printf("Current i = %d\n", i);
-                        int power = (int)pow((int8_t)(((char *)res->data)[i]), public_key);
-                        int res1 = power % mod;
-                        printf("%d %% %d = %d", power, mod, res1);
-                        ((char *)(res->data))[i] = res1;
+
+                        ((char *)(res->data))[i] = (int8_t)((int)pow((int8_t)(((char *)res->data)[i]), public_key) % mod);
                     }
                     if ((rv = nng_send(sock, res->data, res->data_size, 0)) != 0)
                     {
@@ -290,10 +288,7 @@ data *client_request(char *url, char *filename, int private_key, int mod)
     buf_alloc->data = malloc(sz);
     for (int i = 0; i < buf_alloc->size; i++)
     {
-        int power = (int)pow(((char *)(buf_alloc->data))[i], private_key);
-        int res = power % mod;
-        printf("%d %% %d = %d", power, mod, res);
-        ((char *)(buf_alloc->data))[i] = res;
+        ((char *)(buf_alloc->data))[i] = (int)pow(((char *)(buf_alloc->data))[i], private_key) % mod;
     }
     printf("before memcpy\n");
     memcpy(buf_alloc->data, buf, sz); // BROKEN
