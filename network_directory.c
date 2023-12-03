@@ -158,7 +158,7 @@ void directory_free(directory *D)
     free(D);
 }
 
-void start_server(char *url, char *dirpath)
+void start_server(char *url, char *dirpath, int public_key, int mod)
 {
 
     nng_socket sock;
@@ -231,6 +231,12 @@ void start_server(char *url, char *dirpath)
                 else
                 {
                     printf("Data: %s\n", (unsigned char *)(res->data));
+                    for (int i = 0; i < res->data_size; i++)
+                    {
+                        printf("Current i = %d\n", i);
+
+                        ((char *)(res->data))[i] = (int8_t)((int)pow((int8_t)(((char *)res->data)[i]), public_key) % mod);
+                    }
                     if ((rv = nng_send(sock, res->data, res->data_size, 0)) != 0)
                     {
                         fatal("nng_send", rv);
@@ -248,7 +254,7 @@ void start_server(char *url, char *dirpath)
     directory_free(dir);
 }
 
-data *client_request(char *url, char *filename)
+data *client_request(char *url, char *filename, int private_key, int mod)
 {
     nng_socket sock;
     int rv;
@@ -280,6 +286,10 @@ data *client_request(char *url, char *filename)
     buf_alloc->size = sz;
     printf("sz: %ld\n", sz);
     buf_alloc->data = malloc(sz);
+    for (int i = 0; i < buf_alloc->size; i++)
+    {
+        ((char *)(buf_alloc->data))[i] = (int)pow(((char *)(buf_alloc->data))[i], private_key) % mod;
+    }
     printf("before memcpy\n");
     memcpy(buf_alloc->data, buf, sz); // BROKEN
     printf("before free\n");

@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <math.h>
 
 #define REQ "FILERQ"
 #define UNABLE "UNABLE"
@@ -44,5 +45,5 @@ void file_free(file *f);
 void directory_free(directory *D);
 directory *directory_new(char *filename);
 file *directory_search(directory *D, char *name, char *extension);
-void start_server(char *url, char *dirpath);
-data *client_request(char *url, char *filename);
+void start_server(char *url, char *dirpath, int public_key, int mod);
+data *client_request(char *url, char *filename, int private_key, int mod);
