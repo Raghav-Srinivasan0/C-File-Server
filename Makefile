@@ -3,6 +3,6 @@ all: network_directory.h network_directory-client.c network_directory-server.c n
 	gcc network_directory.c network_directory-server.c -lnng -lm -o server
 
 run-client: client 
-	sudo ./client tcp://172.24.148.15:80 5519 41519438
+	sudo ./client tcp://172.24.148.15:80 23 187
 run-server: server
-	sudo ./server tcp://172.24.148.15:80 test-dir 7523 41519438
+	sudo ./server tcp://172.24.148.15:80 test-dir 7 187
