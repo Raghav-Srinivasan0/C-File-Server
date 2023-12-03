@@ -21,7 +21,7 @@ int main(int argc, char **argv)
         remove(fullfilename);
         printf("Opening %s ...\n", fullfilename);
         FILE *f = fopen(fullfilename, "ab");
-        fwrite(res->data, res->size, 1, f);
+        printf("Amt written: %ld\n", fwrite(res->data, res->size, 1, f));
         fclose(f);
         free(fullfilename);
     }
