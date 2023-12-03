@@ -12,7 +12,6 @@ int main(int argc, char **argv)
         data *res = client_request(argv[1], filename);
         if (strcmp("EXIT", filename) == 0)
             break;
-        printf("Before memcmp\n");
         if (memcmp(res->data, UNABLE, res->size) == 0)
             continue;
         char *fullfilename = calloc(30 + strlen(resultDir) + 1, sizeof(char));

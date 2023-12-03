@@ -182,27 +182,19 @@ void start_server(char *url, char *dirpath)
         {
             fatal("nng_recv", rv);
         }
-        printf("buf recieved: %s\n", buf);
         if (streq(REQ, buf, strlen(REQ)))
         {
-            printf("Valid Request\n");
             char *filenamefull = calloc(strlen(buf) - strlen(REQ) + 1, sizeof(char));
             memcpy(filenamefull, &buf[strlen(REQ)], strlen(buf) - strlen(REQ));
-            printf("Past filenamefull copy\n");
             int i;
             for (i = 0; i < strlen(filenamefull) && filenamefull[i] != '.'; i++)
                 ;
-            printf("Got i = %d\n", i);
             char *filename = calloc(i + 1, sizeof(char));
-            printf("Allocated filename\n");
             memcpy(filename, filenamefull, i);
-            printf("Copied data\n");
             filename[i] = '\0';
-            printf("Past filename\n");
             char *ext = calloc(strlen(filenamefull) - i + 1, sizeof(char));
             memcpy(ext, &filenamefull[i + 1], strlen(filenamefull) - i);
             ext[strlen(filenamefull) - i] = '\0';
-            printf("Past ext\n");
             free(filenamefull);
             printf("filename: %s\next: %s\n", filename, ext);
             if (strcmp(filename, "EXIT") == 0)
@@ -217,12 +209,9 @@ void start_server(char *url, char *dirpath)
             }
             else
             {
-                printf("Here1\n");
                 file *res = directory_search(dir, filename, ext);
-                printf("Here2.1\n");
                 free(filename);
                 free(ext);
-                printf("Here2\n");
                 if (res == NULL)
                 {
                     printf("Unable to find file!\n");
@@ -233,7 +222,7 @@ void start_server(char *url, char *dirpath)
                 }
                 else
                 {
-                    printf("Here3\n");
+                    printf("File Found!\n");
                     if ((rv = nng_send(sock, res->data, res->data_size, 0)) != 0)
                     {
                         fatal("nng_send", rv);
@@ -278,16 +267,12 @@ data *client_request(char *url, char *filename)
     {
         fatal("nng_recv", rv);
     }
-    printf("NODE1: RECEIVED DATA %s\n", buf);
     data *buf_alloc = malloc(sizeof(data));
     buf_alloc->size = sz;
-    printf("sz: %ld\n", sz);
+    printf("Amount Recieved: %ld\n", sz);
     buf_alloc->data = malloc(sz);
-    printf("before memcpy\n");
-    memcpy(buf_alloc->data, buf, sz); // BROKEN
-    printf("before free\n");
+    memcpy(buf_alloc->data, buf, sz);
     nng_free(buf, sz);
     nng_close(sock);
-    printf("Returned from client_request\n");
     return buf_alloc;
 }
