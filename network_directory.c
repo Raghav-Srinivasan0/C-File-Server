@@ -55,7 +55,6 @@ file *file_new(char *filename)
         return NULL;
     }
     temp_file->data = malloc(findSize(filename));
-    temp_file->data_size = findSize(filename);
     printf("data: %ld\n", fread(temp_file->data, 1, findSize(filename), f));
     fclose(f);
     return temp_file;
@@ -231,7 +230,7 @@ void start_server(char *url, char *dirpath)
                 else
                 {
                     printf("Data: %s\n", (unsigned char *)(res->data));
-                    if ((rv = nng_send(sock, res->data, res->data_size, 0)) != 0)
+                    if ((rv = nng_send(sock, res->data, strlen(res->data) + 1, 0)) != 0)
                     {
                         fatal("nng_send", rv);
                     }

@@ -20,7 +20,6 @@ struct file_header
     char *name;
     char *extension;
     void *data;
-    size_t data_size;
 };
 
 typedef struct directory_header directory;
