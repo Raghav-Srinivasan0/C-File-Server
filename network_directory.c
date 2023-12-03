@@ -277,7 +277,9 @@ data *client_request(char *url, char *filename)
     printf("NODE1: RECEIVED DATA %s\n", buf);
     data *buf_alloc = malloc(sizeof(data));
     buf_alloc->size = sz;
+    printf("before memcpy\n");
     memcpy(buf_alloc->data, buf, sz);
+    printf("before free\n");
     nng_free(buf, sz);
     nng_close(sock);
     printf("Returned from client_request\n");
