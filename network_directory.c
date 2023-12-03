@@ -9,7 +9,7 @@ void fatal(const char *func, int rv)
 long int findSize(char file_name[])
 {
     // opening the file in read mode
-    FILE *fp = fopen(file_name, "r");
+    FILE *fp = fopen(file_name, "rb");
 
     // checking if the file exist or not
     if (fp == NULL)
@@ -18,7 +18,9 @@ long int findSize(char file_name[])
         return -1;
     }
 
+    printf("pre seek\n");
     fseek(fp, 0L, SEEK_END);
+    printf("post seek\n");
 
     // calculating the size of the file
     long int res = ftell(fp);
@@ -31,12 +33,6 @@ long int findSize(char file_name[])
 
 file *file_new(char *filename)
 {
-    FILE *f = fopen(filename, "rb");
-    if (!f)
-    {
-        printf("Unable to open file!");
-        return NULL;
-    }
     file *temp_file = malloc(sizeof(file));
     int n = strlen(filename);
     int i;
@@ -52,9 +48,14 @@ file *file_new(char *filename)
     temp_file->name = malloc(sizeof(char) * (n - i + 1));
     memcpy(temp_file->name, &filename[i + 1], n - i);
     temp_file->name[n - i] = '\0';
-    fclose(f);
-    f = fopen(filename, "r");
-    fread(temp_file->data, findSize(filename), 1, f);
+    FILE *f = fopen(filename, "rb");
+    if (!f)
+    {
+        printf("Unable to open file!");
+        return NULL;
+    }
+    temp_file->data = malloc(findSize(filename));
+    printf("data: %ld\n", fread(temp_file->data, 1, findSize(filename), f));
     fclose(f);
     return temp_file;
 }
@@ -139,7 +140,7 @@ file *directory_search(directory *D, char *name, char *extension) // NEEDS MORE 
     printf("content_len=%ld\n", D->content_len);
     for (size_t i = 0; i < D->content_len; i++)
     {
-        printf("content at %ld: %s\n", i, D->content[i]->data);
+        printf("content at %ld: %s\n", i, (unsigned char *)(D->content[i]->data));
         if (strlen(name) == strlen(D->content[i]->name) && strlen(extension) == strlen(D->content[i]->extension) && streq(name, D->content[i]->name, strlen(name)) && streq(extension, D->content[i]->extension, strlen(extension)))
             return D->content[i];
     }
@@ -228,7 +229,7 @@ void start_server(char *url, char *dirpath)
                 }
                 else
                 {
-                    printf("Data: %s\n", res->data);
+                    printf("Data: %s\n", (unsigned char *)(res->data));
                     if ((rv = nng_send(sock, res->data, strlen(res->data) + 1, 0)) != 0)
                     {
                         fatal("nng_send", rv);

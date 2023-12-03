@@ -19,7 +19,7 @@ struct file_header
 {
     char *name;
     char *extension;
-    char *data;
+    void *data;
 };
 
 typedef struct directory_header directory;
