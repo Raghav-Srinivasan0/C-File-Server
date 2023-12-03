@@ -9,10 +9,10 @@ int main(int argc, char **argv)
         scanf("%30s", filename);
         if (strcmp("exit_client", filename) == 0)
             break;
-        char *res = client_request(argv[1], filename);
+        data *res = client_request(argv[1], filename);
         if (strcmp("EXIT", filename) == 0)
             break;
-        if (strcmp(res, UNABLE) == 0)
+        if (memcmp(res->data, UNABLE, res->size) == 0)
             continue;
         char *fullfilename = calloc(30 + strlen(resultDir) + 1, sizeof(char));
         memcpy(fullfilename, resultDir, strlen(resultDir) + 1);
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
         remove(fullfilename);
         printf("Opening %s ...\n", fullfilename);
         FILE *f = fopen(fullfilename, "ab");
-        fputs(res, f);
+        fwrite(res->data, res->size, 1, f);
         fclose(f);
         free(fullfilename);
     }

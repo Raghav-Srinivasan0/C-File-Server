@@ -17,9 +17,9 @@ typedef struct file_header file;
 
 struct file_header
 {
-    char* name;
-    char* extension;
-    char* data;
+    char *name;
+    char *extension;
+    char *data;
 };
 
 typedef struct directory_header directory;
@@ -27,13 +27,21 @@ typedef struct directory_header directory;
 struct directory_header
 {
     size_t content_len;
-    file** content;
+    file **content;
 };
 
-file* file_new(char* filename);
-void file_free(file* f);
-void directory_free(directory* D);
-directory* directory_new(char* filename);
-file* directory_search(directory* D,char* name, char* extension);
-void start_server(char* url, char* dirpath);
-char* client_request(char* url, char* filename);
+struct data_header
+{
+    void *data;
+    size_t size;
+};
+
+typedef struct data_header data;
+
+file *file_new(char *filename);
+void file_free(file *f);
+void directory_free(directory *D);
+directory *directory_new(char *filename);
+file *directory_search(directory *D, char *name, char *extension);
+void start_server(char *url, char *dirpath);
+data *client_request(char *url, char *filename);

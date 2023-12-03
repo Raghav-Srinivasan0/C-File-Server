@@ -6,6 +6,29 @@ void fatal(const char *func, int rv)
     exit(1);
 }
 
+long int findSize(char file_name[])
+{
+    // opening the file in read mode
+    FILE *fp = fopen(file_name, "r");
+
+    // checking if the file exist or not
+    if (fp == NULL)
+    {
+        printf("File Not Found!\n");
+        return -1;
+    }
+
+    fseek(fp, 0L, SEEK_END);
+
+    // calculating the size of the file
+    long int res = ftell(fp);
+
+    // closing the file
+    fclose(fp);
+
+    return res;
+}
+
 file *file_new(char *filename)
 {
     FILE *f = fopen(filename, "rb");
@@ -29,25 +52,9 @@ file *file_new(char *filename)
     temp_file->name = malloc(sizeof(char) * (n - i + 1));
     memcpy(temp_file->name, &filename[i + 1], n - i);
     temp_file->name[n - i] = '\0';
-    int c = fgetc(f);
-    i = 0;
-    while (c != EOF)
-    {
-        i++;
-        c = fgetc(f);
-    }
     fclose(f);
     f = fopen(filename, "r");
-    temp_file->data = calloc(i + 1, sizeof(char));
-    c = fgetc(f);
-    i = 0;
-    while (c != EOF)
-    {
-        temp_file->data[i] = (char)c;
-        i++;
-        c = fgetc(f);
-    }
-    temp_file->data[i] = '\0';
+    fread(temp_file->data, findSize(filename), 1, f);
     fclose(f);
     return temp_file;
 }
@@ -239,7 +246,7 @@ void start_server(char *url, char *dirpath)
     directory_free(dir);
 }
 
-char *client_request(char *url, char *filename)
+data *client_request(char *url, char *filename)
 {
     nng_socket sock;
     int rv;
@@ -267,8 +274,9 @@ char *client_request(char *url, char *filename)
         fatal("nng_recv", rv);
     }
     printf("NODE1: RECEIVED DATA %s\n", buf);
-    char *buf_alloc = calloc(strlen(buf) + 1, sizeof(char));
-    memcpy(buf_alloc, buf, strlen(buf) + 1);
+    data *buf_alloc = malloc(sizeof(data));
+    buf_alloc->size = sz;
+    memcpy(buf_alloc->data, buf, sz);
     nng_free(buf, sz);
     nng_close(sock);
     return buf_alloc;
