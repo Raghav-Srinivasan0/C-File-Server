@@ -190,6 +190,7 @@ void start_server(char *url, char *dirpath)
             }
             else if (strcmp(filenamefull, REFRESH) == 0)
             {
+                directory_free(dir);
                 dir = directory_new(dirpath);
                 if ((rv = nng_send(sock, ABLE, strlen(ABLE) + 1, 0)) != 0)
                 {
