@@ -198,8 +198,8 @@ void start_server(char *url, char *dirpath)
                 char *all_names = calloc(size + 1, sizeof(char));
                 for (size_t i = 0; i < dir->content_len; i++)
                 {
-                    strcat(all_names, ((dir->content)[i])->name);
                     strcat(all_names, "\n- ");
+                    strcat(all_names, ((dir->content)[i])->name);
                 }
                 all_names[size + 1] = '\0';
                 if ((rv = nng_send(sock, all_names, size + 1, 0)) != 0)
