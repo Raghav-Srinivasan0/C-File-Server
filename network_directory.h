@@ -13,6 +13,9 @@
 #define REQ "FILERQ"
 #define UNABLE "UNABLE"
 #define LIST "LIST"
+#define REFRESH "REFRESH"
+#define EXIT "EXIT"
+#define ABLE "ABLE"
 
 typedef struct file_header file;
 

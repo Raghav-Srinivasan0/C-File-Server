@@ -15,9 +15,9 @@ int main(int argc, char **argv)
             printf("\nAvailable Files:\n%s\n", (char *)res->data);
             continue;
         }
-        if (strcmp("EXIT", filename) == 0)
+        if (strcmp(EXIT, filename) == 0)
             break;
-        if (memcmp(res->data, UNABLE, res->size) == 0)
+        if (memcmp(res->data, UNABLE, res->size) == 0 || memcmp(res->data, ABLE, res->size) == 0)
             continue;
         char *fullfilename = calloc(30 + strlen(resultDir) + 1, sizeof(char));
         memcpy(fullfilename, resultDir, strlen(resultDir) + 1);

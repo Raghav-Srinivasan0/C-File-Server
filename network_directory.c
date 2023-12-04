@@ -179,7 +179,7 @@ void start_server(char *url, char *dirpath)
             char *filenamefull = calloc(strlen(buf) - strlen(REQ) + 1, sizeof(char));
             memcpy(filenamefull, &buf[strlen(REQ)], strlen(buf) - strlen(REQ));
             printf("filename: %s\n", filenamefull);
-            if (strcmp(filenamefull, "EXIT") == 0)
+            if (strcmp(filenamefull, EXIT) == 0)
             {
                 free(filenamefull);
                 if ((rv = nng_send(sock, UNABLE, strlen(UNABLE) + 1, 0)) != 0)
@@ -187,6 +187,14 @@ void start_server(char *url, char *dirpath)
                     fatal("nng_send", rv);
                 }
                 break;
+            }
+            else if (strcmp(filenamefull, REFRESH) == 0)
+            {
+                dir = directory_new(dirpath);
+                if ((rv = nng_send(sock, ABLE, strlen(ABLE) + 1, 0)) != 0)
+                {
+                    fatal("nng_send", rv);
+                }
             }
             else if (strcmp(filenamefull, LIST) == 0)
             {
