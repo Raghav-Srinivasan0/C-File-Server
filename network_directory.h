@@ -16,7 +16,7 @@
 #define REFRESH "REFRESH"
 #define EXIT "EXIT"
 #define ABLE "ABLE"
-#define CD "CD"
+#define CD "CD_"
 #define OUT "OUT"
 
 typedef struct file_header file;
