@@ -12,7 +12,7 @@ int main(int argc, char **argv)
         scanf("%30s", filename);
         if (strcmp("exit_client", filename) == 0)
             break;
-        if (memcmp("SEND", filename, strlen("SEND")))
+        else if (memcmp("SEND", filename, strlen("SEND")) == 0)
         {
             client_send(argv[1], &filename[strlen("SEND")]);
         }
