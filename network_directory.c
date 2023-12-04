@@ -34,14 +34,7 @@ file *file_new(char *filename)
     file *temp_file = malloc(sizeof(file));
     int n = strlen(filename);
     int i;
-    for (i = n - 1; filename[i] != '.' && i >= 0; i--)
-        ;
-    temp_file->extension = malloc(sizeof(char) * (n - i + 1));
-    memcpy(temp_file->extension, &filename[i + 1], n - i);
-    temp_file->extension[n - i] = '\0';
-    i--;
-    n = i;
-    for (; filename[i] != '/' && i >= 0; i--)
+    for (i = n - 1; filename[i] != '/' && i >= 0; i--)
         ;
     temp_file->name = malloc(sizeof(char) * (n - i + 1));
     memcpy(temp_file->name, &filename[i + 1], n - i);
@@ -54,7 +47,7 @@ file *file_new(char *filename)
     }
     temp_file->data = malloc(findSize(filename));
     temp_file->data_size = findSize(filename);
-    printf("New File: %s.%s\nLength: %ld\n", temp_file->name, temp_file->extension, temp_file->data_size);
+    printf("New File: %s\nLength: %ld\n", temp_file->name, temp_file->data_size);
     printf("Amount read: %ld\n\n", fread(temp_file->data, 1, temp_file->data_size, f));
     fclose(f);
     return temp_file;
@@ -63,7 +56,6 @@ file *file_new(char *filename)
 void file_free(file *f)
 {
     free(f->data);
-    free(f->extension);
     free(f->name);
     free(f);
 }
@@ -135,13 +127,13 @@ bool streq(char *a, char *b, size_t len)
     return true;
 }
 
-file *directory_search(directory *D, char *name, char *extension) // NEEDS MORE TESTING ON NONEXISTENT FILES
+file *directory_search(directory *D, char *name) // NEEDS MORE TESTING ON NONEXISTENT FILES
 {
     printf("content_len=%ld\n", D->content_len);
     for (size_t i = 0; i < D->content_len; i++)
     {
         printf("content at %ld: %s\n", i, (unsigned char *)(D->content[i]->data));
-        if (strlen(name) == strlen(D->content[i]->name) && strlen(extension) == strlen(D->content[i]->extension) && streq(name, D->content[i]->name, strlen(name)) && streq(extension, D->content[i]->extension, strlen(extension)))
+        if (strlen(name) == strlen(D->content[i]->name) && streq(name, D->content[i]->name, strlen(name)))
             return D->content[i];
     }
     return NULL;
@@ -209,7 +201,7 @@ void start_server(char *url, char *dirpath)
             }
             else
             {
-                file *res = directory_search(dir, filename, ext);
+                file *res = directory_search(dir, filename);
                 free(filename);
                 free(ext);
                 if (res == NULL)

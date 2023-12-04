@@ -18,7 +18,6 @@ typedef struct file_header file;
 struct file_header
 {
     char *name;
-    char *extension;
     void *data;
     size_t data_size;
 };
@@ -43,6 +42,6 @@ file *file_new(char *filename);
 void file_free(file *f);
 void directory_free(directory *D);
 directory *directory_new(char *filename);
-file *directory_search(directory *D, char *name, char *extension);
+file *directory_search(directory *D, char *name);
 void start_server(char *url, char *dirpath);
 data *client_request(char *url, char *filename);
