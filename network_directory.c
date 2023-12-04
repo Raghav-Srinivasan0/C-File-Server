@@ -68,6 +68,17 @@ directory *directory_new(char *filename)
         printf("Unable to open directory!");
         return NULL;
     }
+    printf("Creating Directory at %s\n",filename);
+    int i = strlen(filename);
+    for (; i>=0 && filename[i] != '/'; i--);
+    if (i > 0)
+    {
+        char* raw_dir_name = &(filename[i+1]);
+        if (strcmp(raw_dir_name,"..") == 0 || strcmp(raw_dir_name,".") == 0)
+        {
+            return NULL;
+        }
+    }
     directory *temp_dir = malloc(sizeof(directory));
     temp_dir->path = calloc(strlen(filename+1),sizeof(char));
     memcpy(temp_dir->path,filename,strlen(filename+1));
@@ -78,6 +89,11 @@ directory *directory_new(char *filename)
     while ((dir = readdir(d)) != NULL)
     {
         char *file_name = dir->d_name;
+        if (filename[0] == '.')
+        {
+            printf("Detected invalid\n");
+            continue;
+        }
         size_t file_name_len = strlen(file_name);
         char *truepath = calloc(filename_len + file_name_len + 2, sizeof(char));
         memcpy(truepath, filename, filename_len + 1);
@@ -95,6 +111,7 @@ directory *directory_new(char *filename)
     closedir(d);
     temp_dir->content = calloc(num_files, sizeof(file *));
     temp_dir->content_len = num_files;
+    temp_dir->subdirs_len = num_subdirs;
     d = opendir(filename);
     dir = NULL;
     num_files = 0;
@@ -214,20 +231,26 @@ void start_server(char *url, char *dirpath)
             }
             else if (strcmp(filenamefull, LIST) == 0)
             {
+                printf("In LIST\n");
                 size_t size = 0;
-                for (size_t i = 0; i < dir->content_len; i++)
+                for (size_t i = 0; i < dir->content_len; i++) //SEGFAULT dir->content_len
                 {
-                    size += strlen(((dir->content)[i])->name) + 3;
+                    size += strlen(((dir->content)[i])->name) + 5;
                 }
+                for (size_t i = 0; i < dir->subdirs_len; i++)
+                {
+                    size += strlen(((dir->subdirs)[i])->path) + 5;
+                }
+                printf("Size: %ld\n",size);
                 char *all_names = calloc(size + 1, sizeof(char));
                 for (size_t i = 0; i < dir->content_len; i++)
                 {
-                    strcat(all_names, "\n- ");
+                    strcat(all_names, "\nf - ");
                     strcat(all_names, ((dir->content)[i])->name);
                 }
                 for (size_t i = 0; i < dir->subdirs_len; i++)
                 {
-                    strcat(all_names, "\n- ");
+                    strcat(all_names, "\nd - ");
                     strcat(all_names, ((dir->subdirs)[i])->path);
                 }
                 all_names[size + 1] = '\0';
