@@ -6,13 +6,14 @@ int main(int argc, char **argv)
     while (true)
     {
         char filename[30];
+        printf("> ");
         scanf("%30s", filename);
         if (strcmp("exit_client", filename) == 0)
             break;
         data *res = client_request(argv[1], filename);
         if (strcmp(LIST, filename) == 0)
         {
-            printf("\nAvailable Files:\n%s\n", (char *)res->data);
+            printf("\nAvailable Files:%s\n\n", (char *)res->data);
             continue;
         }
         if (strcmp(EXIT, filename) == 0)
