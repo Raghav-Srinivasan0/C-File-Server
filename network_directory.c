@@ -279,7 +279,7 @@ data *client_request(char *url, char *filename)
     }
     data *buf_alloc = malloc(sizeof(data));
     buf_alloc->size = sz;
-    printf("Amount Recieved: %ld\n", sz);
+    printf("Amount Recieved: %ld\n\n", sz);
     buf_alloc->data = malloc(sz);
     memcpy(buf_alloc->data, buf, sz);
     nng_free(buf, sz);
