@@ -300,7 +300,7 @@ void start_server(char *url, char *dirpath)
             {
                 printf("In CD\n");
                 char *newdir = calloc(strlen(filenamefull) - strlen(CD) + 1, sizeof(char));
-                memcpy(newdir, &filenamefull[strlen(CD)], strlen(filenamefull) - strlen(CD));
+                memcpy(newdir, &filenamefull[strlen(CD)], strlen(filenamefull) - strlen(CD) + 1);
                 printf("newdir: %s\n", newdir);
                 directory *old_dir = dir;
                 printf("Past line 292\n");
@@ -338,6 +338,19 @@ void start_server(char *url, char *dirpath)
                     }
                 }
             }
+        }
+        if (streq(LISTEN, buf, strlen(LISTEN)))
+        {
+            char *filenamefull = calloc(strlen(buf) - strlen(LISTEN) + 1, sizeof(char));
+            memcpy(filenamefull, &buf[strlen(LISTEN)], strlen(buf) - strlen(REQ));
+            printf("filename: %s\n", filenamefull);
+            if ((rv = nng_recv(sock, &buf, &sz, NNG_FLAG_ALLOC)) != 0)
+            {
+                fatal("nng_recv", rv);
+            }
+            FILE *f = fopen(filenamefull, "ab");
+            fwrite(buf, 1, sz, f);
+            fclose(f);
         }
         else
         {
@@ -389,4 +402,38 @@ data *client_request(char *url, char *filename)
     nng_free(buf, sz);
     nng_close(sock);
     return buf_alloc;
+}
+
+void client_send(char *url, char *filename)
+{
+    nng_socket sock;
+    int rv;
+    size_t sz;
+    char *buf = NULL;
+    char *full_request = calloc(strlen(filename) + strlen(LISTEN) + 1, sizeof(char));
+    strcpy(full_request, LISTEN);
+    strcat(full_request, filename);
+    printf("\033[0;33m");
+    printf("Request:");
+    printf("\033[0m");
+    printf(" %s\n", full_request);
+    if ((rv = nng_req0_open(&sock)) != 0)
+    {
+        fatal("nng_socket", rv);
+    }
+    if ((rv = nng_dial(sock, url, NULL, 0)) != 0)
+    {
+        fatal("nng_dial", rv);
+    }
+    if ((rv = nng_send(sock, full_request, strlen(full_request) + 1, 0)) != 0)
+    {
+        fatal("nng_send", rv);
+    }
+    FILE *f = fopen(filename, "rb");
+    char *data = calloc(findSize(filename), sizeof(char));
+    fread(data, 1, findSize(filename), f);
+    if ((rv = nng_send(sock, data, findSize(filename), 0)) != 0)
+    {
+        fatal("nng_send", rv);
+    }
 }

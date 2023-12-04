@@ -12,34 +12,41 @@ int main(int argc, char **argv)
         scanf("%30s", filename);
         if (strcmp("exit_client", filename) == 0)
             break;
-        data *res = client_request(argv[1], filename);
-        if (strcmp(LIST, filename) == 0)
+        if (memcmp("SEND", filename, strlen("SEND")))
         {
-            printf("\033[0;35m");
-            printf("Available Files:");
-            printf("\033[0m");
-            printf("%s\n\n", (char *)res->data);
-            continue;
+            client_send(argv[1], &filename[strlen("SEND")]);
         }
-        if (strcmp(EXIT, filename) == 0)
-            break;
-        if (memcmp(res->data, UNABLE, res->size) == 0 || memcmp(res->data, ABLE, res->size) == 0)
-            continue;
-        char *fullfilename = calloc(30 + strlen(resultDir) + 1, sizeof(char));
-        memcpy(fullfilename, resultDir, strlen(resultDir) + 1);
-        strcat(fullfilename, filename);
-        remove(fullfilename);
-        printf("\033[0;31m");
-        printf("Opening: ");
-        printf("\033[0m");
-        printf("%s\n", fullfilename);
-        FILE *f = fopen(fullfilename, "ab");
-        printf("\033[0;35m");
-        printf("Amt written:");
-        printf("\033[0m");
-        printf(" %ld\n", fwrite(res->data, 1, res->size, f));
-        fclose(f);
-        free(fullfilename);
+        else
+        {
+            data *res = client_request(argv[1], filename);
+            if (strcmp(LIST, filename) == 0)
+            {
+                printf("\033[0;35m");
+                printf("Available Files:");
+                printf("\033[0m");
+                printf("%s\n\n", (char *)res->data);
+                continue;
+            }
+            if (strcmp(EXIT, filename) == 0)
+                break;
+            if (memcmp(res->data, UNABLE, res->size) == 0 || memcmp(res->data, ABLE, res->size) == 0)
+                continue;
+            char *fullfilename = calloc(30 + strlen(resultDir) + 1, sizeof(char));
+            memcpy(fullfilename, resultDir, strlen(resultDir) + 1);
+            strcat(fullfilename, filename);
+            remove(fullfilename);
+            printf("\033[0;31m");
+            printf("Opening: ");
+            printf("\033[0m");
+            printf("%s\n", fullfilename);
+            FILE *f = fopen(fullfilename, "ab");
+            printf("\033[0;35m");
+            printf("Amt written:");
+            printf("\033[0m");
+            printf(" %ld\n", fwrite(res->data, 1, res->size, f));
+            fclose(f);
+            free(fullfilename);
+        }
     }
     return 0;
 }

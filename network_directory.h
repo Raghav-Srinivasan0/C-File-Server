@@ -11,12 +11,13 @@
 #include <unistd.h>
 
 #define REQ "FILERQ"
+#define LISTEN "FILELISTEN"
 #define UNABLE "UNABLE"
 #define LIST "LIST"
 #define REFRESH "REFRESH"
 #define EXIT "EXIT"
 #define ABLE "ABLE"
-#define CD "CD"
+#define CD "CD_"
 #define OUT "OUT"
 
 typedef struct file_header file;
@@ -55,3 +56,4 @@ directory *directory_new(char *filename, directory *parent);
 file *directory_search(directory *D, char *name);
 void start_server(char *url, char *dirpath);
 data *client_request(char *url, char *filename);
+void client_send(char *url, char *filename);
