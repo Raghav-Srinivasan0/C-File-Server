@@ -13,7 +13,7 @@ int main(int argc, char **argv)
         if (strcmp(LIST, filename) == 0)
         {
             printf("\nAvailable Files: %s\n", (char *)res->data);
-            break;
+            continue;
         }
         if (strcmp("EXIT", filename) == 0)
             break;
