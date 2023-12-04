@@ -1,6 +1,5 @@
 client
 server
-test_dir/*
 result_dir/*
 .vscode
 test-dir/*
