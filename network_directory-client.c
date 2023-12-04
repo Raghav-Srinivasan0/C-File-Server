@@ -6,7 +6,9 @@ int main(int argc, char **argv)
     while (true)
     {
         char filename[30];
+        printf("\033[0;34m");
         printf("> ");
+        printf("\033[0m");
         scanf("%30s", filename);
         if (strcmp("exit_client", filename) == 0)
             break;
@@ -27,9 +29,15 @@ int main(int argc, char **argv)
         memcpy(fullfilename, resultDir, strlen(resultDir) + 1);
         strcat(fullfilename, filename);
         remove(fullfilename);
-        printf("Opening %s ...\n", fullfilename);
+        printf("\033[0;31m");
+        printf("Opening: ", fullfilename);
+        printf("\033[0m");
+        printf("%s\n");
         FILE *f = fopen(fullfilename, "ab");
-        printf("Amt written: %ld\n", fwrite(res->data, 1, res->size, f));
+        printf("\033[0;35m");
+        printf("Amt written:");
+        printf("\033[0m");
+        printf(" %ld\n", fwrite(res->data, 1, res->size, f));
         fclose(f);
         free(fullfilename);
     }
