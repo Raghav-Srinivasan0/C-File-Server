@@ -30,9 +30,9 @@ int main(int argc, char **argv)
         strcat(fullfilename, filename);
         remove(fullfilename);
         printf("\033[0;31m");
-        printf("Opening: ", fullfilename);
+        printf("Opening: ");
         printf("\033[0m");
-        printf("%s\n");
+        printf("%s\n", fullfilename);
         FILE *f = fopen(fullfilename, "ab");
         printf("\033[0;35m");
         printf("Amt written:");
