@@ -178,21 +178,10 @@ void start_server(char *url, char *dirpath)
         {
             char *filenamefull = calloc(strlen(buf) - strlen(REQ) + 1, sizeof(char));
             memcpy(filenamefull, &buf[strlen(REQ)], strlen(buf) - strlen(REQ));
-            int i;
-            for (i = 0; i < strlen(filenamefull) && filenamefull[i] != '.'; i++)
-                ;
-            char *filename = calloc(i + 1, sizeof(char));
-            memcpy(filename, filenamefull, i);
-            filename[i] = '\0';
-            char *ext = calloc(strlen(filenamefull) - i + 1, sizeof(char));
-            memcpy(ext, &filenamefull[i + 1], strlen(filenamefull) - i);
-            ext[strlen(filenamefull) - i] = '\0';
-            free(filenamefull);
-            printf("filename: %s\next: %s\n", filename, ext);
-            if (strcmp(filename, "EXIT") == 0)
+            printf("filename: %s\n", filenamefull);
+            if (strcmp(filenamefull, "EXIT") == 0)
             {
-                free(filename);
-                free(ext);
+                free(filenamefull);
                 if ((rv = nng_send(sock, UNABLE, strlen(UNABLE) + 1, 0)) != 0)
                 {
                     fatal("nng_send", rv);
@@ -201,9 +190,8 @@ void start_server(char *url, char *dirpath)
             }
             else
             {
-                file *res = directory_search(dir, filename);
-                free(filename);
-                free(ext);
+                file *res = directory_search(dir, filenamefull);
+                free(filenamefull);
                 if (res == NULL)
                 {
                     printf("Unable to find file!\n");
