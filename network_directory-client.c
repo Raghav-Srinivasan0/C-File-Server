@@ -12,7 +12,7 @@ int main(int argc, char **argv)
         data *res = client_request(argv[1], filename);
         if (strcmp(LIST, filename) == 0)
         {
-            printf("\nAvailable Files: %s\n", (char *)res->data);
+            printf("\nAvailable Files:\n%s\n", (char *)res->data);
             continue;
         }
         if (strcmp("EXIT", filename) == 0)
