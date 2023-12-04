@@ -199,7 +199,7 @@ void start_server(char *url, char *dirpath)
                 for (size_t i = 0; i < dir->content_len; i++)
                 {
                     strcat(all_names, ((dir->content)[i])->name);
-                    strcat(all_names, " ");
+                    strcat(all_names, "\n");
                 }
                 all_names[size + 1] = '\0';
                 if ((rv = nng_send(sock, all_names, size + 1, 0)) != 0)
