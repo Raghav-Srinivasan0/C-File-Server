@@ -259,8 +259,10 @@ data *client_request(char *url, char *filename)
     char *full_request = calloc(strlen(filename) + strlen(REQ) + 1, sizeof(char));
     strcpy(full_request, REQ);
     strcat(full_request, filename);
-    printf("Request: %s\n", full_request);
-
+    printf("\033[0;33m");
+    printf("Request:");
+    printf("\033[0m");
+    printf(" %s\n", full_request);
     if ((rv = nng_req0_open(&sock)) != 0)
     {
         fatal("nng_socket", rv);
@@ -279,7 +281,10 @@ data *client_request(char *url, char *filename)
     }
     data *buf_alloc = malloc(sizeof(data));
     buf_alloc->size = sz;
-    printf("Amount Recieved: %ld\n\n", sz);
+    printf("\033[0;32m");
+    printf("Amount Recieved:");
+    printf("\033[0m");
+    printf(" %ld\n\n", sz);
     buf_alloc->data = malloc(sz);
     memcpy(buf_alloc->data, buf, sz);
     nng_free(buf, sz);

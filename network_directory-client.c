@@ -13,7 +13,10 @@ int main(int argc, char **argv)
         data *res = client_request(argv[1], filename);
         if (strcmp(LIST, filename) == 0)
         {
-            printf("Available Files:%s\n\n", (char *)res->data);
+            printf("\033[0;35m");
+            printf("Available Files:");
+            printf("\033[0m");
+            printf("%s\n\n", (char *)res->data);
             continue;
         }
         if (strcmp(EXIT, filename) == 0)
