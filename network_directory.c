@@ -430,6 +430,11 @@ void client_send(char *url, char *filename)
         fatal("nng_send", rv);
     }
     FILE *f = fopen(filename, "rb");
+    if (!f)
+    {
+        printf("File not Found!\n");
+        return NULL;
+    }
     char *data = calloc(findSize(filename), sizeof(char));
     fread(data, 1, findSize(filename), f);
     if ((rv = nng_send(sock, data, findSize(filename), 0)) != 0)
