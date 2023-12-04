@@ -188,6 +188,26 @@ void start_server(char *url, char *dirpath)
                 }
                 break;
             }
+            else if (strcmp(filenamefull, LIST) == 0)
+            {
+                size_t size = 0;
+                for (size_t i = 0; i < dir->content_len; i++)
+                {
+                    size += strlen(((dir->content)[i])->name) + 1;
+                }
+                char *all_names = calloc(size + 1, sizeof(char));
+                for (size_t i = 0; i < dir->content_len; i++)
+                {
+                    strcat(all_names, ((dir->content)[i])->name);
+                    strcat(all_names, " ");
+                }
+                all_names[size + 1] = '\0';
+                if ((rv = nng_send(sock, all_names, size + 1, 0)) != 0)
+                {
+                    fatal("nng_send", rv);
+                }
+                free(all_names);
+            }
             else
             {
                 file *res = directory_search(dir, filenamefull);

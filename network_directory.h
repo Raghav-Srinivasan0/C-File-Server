@@ -12,6 +12,7 @@
 
 #define REQ "FILERQ"
 #define UNABLE "UNABLE"
+#define LIST "LIST"
 
 typedef struct file_header file;
 
