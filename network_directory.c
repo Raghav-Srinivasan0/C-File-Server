@@ -60,7 +60,7 @@ void file_free(file *f)
     free(f);
 }
 
-directory *directory_new(char *filename)
+directory *directory_new(char *filename, directory *parent)
 {
     DIR *d = opendir(filename);
     if (!d)
@@ -68,20 +68,26 @@ directory *directory_new(char *filename)
         printf("Unable to open directory!");
         return NULL;
     }
-    printf("Creating Directory at %s\n",filename);
+    printf("Creating Directory at %s\n", filename);
     int i = strlen(filename);
-    for (; i>=0 && filename[i] != '/'; i--);
+    for (; i >= 0 && filename[i] != '/'; i--)
+        ;
     if (i > 0)
     {
-        char* raw_dir_name = &(filename[i+1]);
-        if (strcmp(raw_dir_name,"..") == 0 || strcmp(raw_dir_name,".") == 0)
+        char *raw_dir_name = calloc(strlen(filename) - i + 1, sizeof(char));
+        memcpy(raw_dir_name, &(filename[i + 1]), strlen(filename) - i);
+        raw_dir_name[strlen(filename) - i + 1] = '\0';
+        printf("raw_dir_name: %s\n", raw_dir_name);
+        if (strcmp(raw_dir_name, "..") == 0 || strcmp(raw_dir_name, ".") == 0)
         {
+            printf("Unable\n");
             return NULL;
         }
     }
     directory *temp_dir = malloc(sizeof(directory));
-    temp_dir->path = calloc(strlen(filename+1),sizeof(char));
-    memcpy(temp_dir->path,filename,strlen(filename+1));
+    temp_dir->path = calloc(strlen(filename) + 1, sizeof(char));
+    temp_dir->parent = parent;
+    memcpy(temp_dir->path, filename, strlen(filename) + 1);
     struct dirent *dir;
     size_t filename_len = strlen(filename);
     size_t num_files = 0;
@@ -110,8 +116,10 @@ directory *directory_new(char *filename)
     }
     closedir(d);
     temp_dir->content = calloc(num_files, sizeof(file *));
+    temp_dir->subdirs = calloc(num_subdirs, sizeof(directory *));
     temp_dir->content_len = num_files;
     temp_dir->subdirs_len = num_subdirs;
+    printf("subdirs_len: %ld\n", num_subdirs);
     d = opendir(filename);
     dir = NULL;
     num_files = 0;
@@ -130,10 +138,20 @@ directory *directory_new(char *filename)
         {
             temp_dir->content[num_files] = file_new(truepath);
             num_files++;
-        } else if (S_ISDIR(buf->st_mode))
+        }
+        else if (S_ISDIR(buf->st_mode))
         {
-            temp_dir->subdirs[num_subdirs] = directory_new(truepath);
-            num_subdirs++;
+            printf("Before directory_new\n");
+            directory *temp_subdir = directory_new(truepath, temp_dir);
+            printf("After directory_new\n");
+            if (temp_subdir != NULL)
+            {
+                printf("Valid directory_new\n");
+                printf("num_subdirs: %ld\n", num_subdirs);
+                temp_dir->subdirs[num_subdirs] = temp_subdir; // BROKEN
+                printf("Line 149\n");
+                num_subdirs++;
+            }
         }
         free(buf);
         free(truepath);
@@ -174,10 +192,12 @@ void directory_free(directory *D)
     }
     for (size_t i = 0; i < D->subdirs_len; i++)
     {
-        directory_free(D->subdirs[i]);
+        if (D->subdirs[i] != NULL)
+            directory_free(D->subdirs[i]);
     }
     free(D->subdirs);
     free(D->content);
+    free(D->path);
     free(D);
 }
 
@@ -187,7 +207,7 @@ void start_server(char *url, char *dirpath)
     nng_socket sock;
     int rv;
 
-    directory *dir = directory_new(dirpath);
+    directory *dir = directory_new(dirpath, NULL);
 
     if ((rv = nng_rep0_open(&sock)) != 0)
     {
@@ -222,8 +242,9 @@ void start_server(char *url, char *dirpath)
             }
             else if (strcmp(filenamefull, REFRESH) == 0)
             {
+                directory *parent = dir->parent;
                 directory_free(dir);
-                dir = directory_new(dirpath);
+                dir = directory_new(dirpath, parent);
                 if ((rv = nng_send(sock, ABLE, strlen(ABLE) + 1, 0)) != 0)
                 {
                     fatal("nng_send", rv);
@@ -233,16 +254,19 @@ void start_server(char *url, char *dirpath)
             {
                 printf("In LIST\n");
                 size_t size = 0;
-                for (size_t i = 0; i < dir->content_len; i++) //SEGFAULT dir->content_len
+                for (size_t i = 0; i < dir->content_len; i++) // SEGFAULT dir->content_len
                 {
                     size += strlen(((dir->content)[i])->name) + 5;
                 }
                 for (size_t i = 0; i < dir->subdirs_len; i++)
                 {
-                    size += strlen(((dir->subdirs)[i])->path) + 5;
+                    printf("Before line 258\n");
+                    if ((dir->subdirs)[i] != NULL)
+                        size += strlen(((dir->subdirs)[i])->path) + 5;
+                    printf("After line 258\n");
                 }
-                printf("Size: %ld\n",size);
-                char *all_names = calloc(size + 1, sizeof(char));
+                printf("Size: %ld\n", size);
+                char *all_names = calloc(size + 2, sizeof(char));
                 for (size_t i = 0; i < dir->content_len; i++)
                 {
                     strcat(all_names, "\nf - ");
@@ -250,22 +274,43 @@ void start_server(char *url, char *dirpath)
                 }
                 for (size_t i = 0; i < dir->subdirs_len; i++)
                 {
-                    strcat(all_names, "\nd - ");
-                    strcat(all_names, ((dir->subdirs)[i])->path);
+                    if ((dir->subdirs)[i] != NULL)
+                    {
+                        strcat(all_names, "\nd - ");
+                        strcat(all_names, ((dir->subdirs)[i])->path);
+                    }
                 }
-                all_names[size + 1] = '\0';
+                all_names[size + 2] = '\0';
                 if ((rv = nng_send(sock, all_names, size + 1, 0)) != 0)
                 {
                     fatal("nng_send", rv);
                 }
                 free(all_names);
             }
-            else if (streq(filenamefull,CD,strlen(CD)))
+            else if (strcmp(filenamefull, OUT) == 0)
             {
+                if (dir->parent != NULL)
+                    dir = dir->parent;
+                if ((rv = nng_send(sock, ABLE, strlen(ABLE) + 1, 0)) != 0)
+                {
+                    fatal("nng_send", rv);
+                }
+            }
+            else if (streq(filenamefull, CD, strlen(CD)))
+            {
+                printf("In CD\n");
                 char *newdir = calloc(strlen(filenamefull) - strlen(CD) + 1, sizeof(char));
                 memcpy(newdir, &filenamefull[strlen(CD)], strlen(filenamefull) - strlen(CD));
-                directory_free(dir);
-                dir = directory_new(newdir);
+                printf("newdir: %s\n", newdir);
+                directory *old_dir = dir;
+                printf("Past line 292\n");
+                dir = directory_new(newdir, old_dir);
+                if (dir == NULL)
+                {
+                    printf("REVERTING to old Directory\n");
+                    dir = old_dir;
+                }
+                printf("Past line 294\n");
                 if ((rv = nng_send(sock, ABLE, strlen(ABLE) + 1, 0)) != 0)
                 {
                     fatal("nng_send", rv);

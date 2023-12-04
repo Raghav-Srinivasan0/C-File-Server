@@ -17,6 +17,7 @@
 #define EXIT "EXIT"
 #define ABLE "ABLE"
 #define CD "CD"
+#define OUT "OUT"
 
 typedef struct file_header file;
 
@@ -31,7 +32,8 @@ typedef struct directory_header directory;
 
 struct directory_header
 {
-    char* path;
+    directory *parent;
+    char *path;
     size_t content_len;
     file **content;
     size_t subdirs_len;
@@ -49,7 +51,7 @@ typedef struct data_header data;
 file *file_new(char *filename);
 void file_free(file *f);
 void directory_free(directory *D);
-directory *directory_new(char *filename);
+directory *directory_new(char *filename, directory *parent);
 file *directory_search(directory *D, char *name);
 void start_server(char *url, char *dirpath);
 data *client_request(char *url, char *filename);
