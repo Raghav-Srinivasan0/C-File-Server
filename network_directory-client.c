@@ -10,6 +10,7 @@ int main(int argc, char **argv)
         if (strcmp("exit_client", filename) == 0)
             break;
         data *res = client_request(argv[1], filename);
+        printf("filename: %s\n", filename);
         if (strcmp(LIST, filename) == 0)
         {
             printf("%s\n", (char *)res->data);
