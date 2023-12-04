@@ -16,6 +16,7 @@
 #define REFRESH "REFRESH"
 #define EXIT "EXIT"
 #define ABLE "ABLE"
+#define CD "CD"
 
 typedef struct file_header file;
 
@@ -30,8 +31,11 @@ typedef struct directory_header directory;
 
 struct directory_header
 {
+    char* path;
     size_t content_len;
     file **content;
+    size_t subdirs_len;
+    directory **subdirs;
 };
 
 struct data_header

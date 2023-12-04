@@ -69,9 +69,12 @@ directory *directory_new(char *filename)
         return NULL;
     }
     directory *temp_dir = malloc(sizeof(directory));
+    temp_dir->path = calloc(strlen(filename+1),sizeof(char));
+    memcpy(temp_dir->path,filename,strlen(filename+1));
     struct dirent *dir;
     size_t filename_len = strlen(filename);
     size_t num_files = 0;
+    size_t num_subdirs = 0;
     while ((dir = readdir(d)) != NULL)
     {
         char *file_name = dir->d_name;
@@ -84,6 +87,8 @@ directory *directory_new(char *filename)
         stat(truepath, buf);
         if (S_ISREG(buf->st_mode))
             num_files++;
+        if (S_ISDIR(buf->st_mode))
+            num_subdirs++;
         free(buf);
         free(truepath);
     }
@@ -93,6 +98,7 @@ directory *directory_new(char *filename)
     d = opendir(filename);
     dir = NULL;
     num_files = 0;
+    num_subdirs = 0;
     while ((dir = readdir(d)) != NULL)
     {
         char *file_name = dir->d_name;
@@ -107,6 +113,10 @@ directory *directory_new(char *filename)
         {
             temp_dir->content[num_files] = file_new(truepath);
             num_files++;
+        } else if (S_ISDIR(buf->st_mode))
+        {
+            temp_dir->subdirs[num_subdirs] = directory_new(truepath);
+            num_subdirs++;
         }
         free(buf);
         free(truepath);
@@ -145,6 +155,11 @@ void directory_free(directory *D)
     {
         file_free(D->content[i]);
     }
+    for (size_t i = 0; i < D->subdirs_len; i++)
+    {
+        directory_free(D->subdirs[i]);
+    }
+    free(D->subdirs);
     free(D->content);
     free(D);
 }
@@ -210,12 +225,28 @@ void start_server(char *url, char *dirpath)
                     strcat(all_names, "\n- ");
                     strcat(all_names, ((dir->content)[i])->name);
                 }
+                for (size_t i = 0; i < dir->subdirs_len; i++)
+                {
+                    strcat(all_names, "\n- ");
+                    strcat(all_names, ((dir->subdirs)[i])->path);
+                }
                 all_names[size + 1] = '\0';
                 if ((rv = nng_send(sock, all_names, size + 1, 0)) != 0)
                 {
                     fatal("nng_send", rv);
                 }
                 free(all_names);
+            }
+            else if (streq(filenamefull,CD,strlen(CD)))
+            {
+                char *newdir = calloc(strlen(filenamefull) - strlen(CD) + 1, sizeof(char));
+                memcpy(newdir, &filenamefull[strlen(CD)], strlen(filenamefull) - strlen(CD));
+                directory_free(dir);
+                dir = directory_new(newdir);
+                if ((rv = nng_send(sock, ABLE, strlen(ABLE) + 1, 0)) != 0)
+                {
+                    fatal("nng_send", rv);
+                }
             }
             else
             {
